@@ -1,0 +1,192 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ==================== MODELS ====================
+
+// ==================== ENUMS ====================
+
+enum Role {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// ==================== BETTER AUTH MODELS ====================
+
+// ১. User Model (Better Auth Compatible + Custom Fields)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  role          Role      @default(TENANT)
+
+  sessions      Session[]
+  accounts      Account[]
+
+  properties    Property[] // Owner হিসেবে প্রপার্টি
+  bookings      Booking[]  // Tenant হিসেবে বুকিং
+  reviews       Review[]
+
+  @@map("user")
+}
+
+// ২. Session Model (Better Auth required)
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("session")
+}
+
+// ৩. Account Model (Better Auth required - password/OAuth এর জন্য)
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+// ৪. Verification Model (Better Auth required - email/otp verify এর জন্য)
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+// ==================== BUSINESS MODELS ====================
+
+// ৫. Property Model
+model Property {
+  id            String   @id @default(cuid())
+  title         String
+  description   String   @db.Text
+  pricePerNight Float
+  location      String
+  maxGuests     Int
+
+  ownerId       String?
+  owner         User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  images        PropertyImage[]
+  amenities     Amenity[]
+  bookings      Booking[]
+  reviews       Review[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ৬. PropertyImage Model
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  isCover    Boolean  @default(false)
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+// ৭. Amenity Model (Many-to-Many)
+model Amenity {
+  id         String     @id @default(cuid())
+  name       String     @unique
+  icon       String?
+
+  properties Property[]
+}
+
+// ৮. Booking Model
+model Booking {
+  id              String        @id @default(cuid())
+  checkIn         DateTime
+  checkOut        DateTime
+  totalPrice      Float
+  status          BookingStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(UNPAID)
+  stripePaymentId String?
+
+  tenantId        String
+  tenant          User          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  propertyId      String
+  property        Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  review          Review?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// ৯. Review Model (শুধু completed booking এর জন্য review দেওয়া যাবে)
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String?  @db.Text
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+}
