@@ -1,4 +1,4 @@
-// backend - prisma.config.js (root e, prisma/ folder er baire)
+// backend - prisma.config.js
 import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 

@@ -12,11 +12,11 @@ datasource db {
 
 // ==================== ENUMS ====================
 
-enum Role {
-  TENANT
-  OWNER
-  ADMIN
-}
+// enum Role {
+//   TENANT
+//   OWNER
+//   ADMIN
+// }
 
 enum BookingStatus {
   PENDING
@@ -35,6 +35,7 @@ enum PaymentStatus {
 // ==================== BETTER AUTH MODELS ====================
 
 // ১. User Model (Better Auth Compatible + Custom Fields)
+// backend - prisma/schema.prisma
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -44,13 +45,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  role          Role      @default(TENANT)
+  role          String    @default("TENANT")
 
   sessions      Session[]
   accounts      Account[]
 
-  properties    Property[] // Owner হিসেবে প্রপার্টি
-  bookings      Booking[]  // Tenant হিসেবে বুকিং
+  properties    Property[]
+  bookings      Booking[]
   reviews       Review[]
 
   @@map("user")
