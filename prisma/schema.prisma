@@ -93,7 +93,8 @@ model Account {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-
+  
+  @@unique([providerId, accountId])
   @@map("account")
 }
 
@@ -109,7 +110,15 @@ model Verification {
 
   @@map("verification")
 }
+// ৪.৫. Jwks Model (Better Auth JWT plugin required)
+model Jwks {
+  id         String   @id @default(cuid())
+  publicKey  String   @db.Text
+  privateKey String   @db.Text
+  createdAt  DateTime @default(now())
 
+  @@map("jwks")
+}
 // ==================== BUSINESS MODELS ====================
 
 // ৫. Property Model

@@ -1,5 +1,4 @@
 // middleware/requireRole.js
-
 const requireRole = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -14,4 +13,4 @@ const requireRole = (...roles) => {
   };
 };
 
-module.exports = requireRole;
+export default requireRole;

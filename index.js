@@ -1,9 +1,8 @@
 // backend - index.js
-// eslint-disable-next-line import/extensions
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-// eslint-disable-next-line import/extensions
+
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './lib/auth.js';
 import errorMiddleware from './middleware/errorMiddleware.js';
