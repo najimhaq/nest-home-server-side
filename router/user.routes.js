@@ -1,9 +1,14 @@
-// backend - router/user.routes.js
+// backend/router/user.routes.js
 import express from 'express';
-import { createUser } from '../controller/user.controller.js';
+import { createUser, getMeUser } from '../controller/user.controller.js';
+import protect from '../middleware/tokenProtect.js';
 
-const router = express.Router();
+const userRouter = express.Router();
 
-router.post('/', createUser);
+// GET /api/users/me
+userRouter.get('/users/me', protect, getMeUser);
 
-export default router;
+// POST /api/users
+userRouter.post('/users', createUser);
+
+export default userRouter;

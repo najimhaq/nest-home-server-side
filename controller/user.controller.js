@@ -3,6 +3,11 @@
 import prisma from '../lib/prisma.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
+export const getMeUser = asyncHandler(async (req, res) => {
+  console.log('[/api/me] user from JWT:', req.user);
+  res.json({ success: true, user: req.user });
+});
+
 export const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
@@ -23,3 +28,5 @@ export const createUser = asyncHandler(async (req, res) => {
     message: 'User created successfully',
   });
 });
+
+

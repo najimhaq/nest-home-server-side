@@ -13,6 +13,7 @@ const getJWKS = async () => {
 const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
+    // console.log('protect authHeader:', authHeader); // 👈 দেখ
 
     if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });

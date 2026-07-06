@@ -8,6 +8,8 @@ import { auth } from './lib/auth.js';
 import errorMiddleware from './middleware/errorMiddleware.js';
 import userRouter from './router/user.routes.js';
 import uploadRouter from './router/upload.routes.js';
+import authRouter from './router/auth.routes.js';
+import adminRouter from './router/admin.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -34,8 +36,11 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use('/api/users', userRouter);
+app.use('/api', userRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/token', authRouter);
+console.log('Routers mounted: /api, /api/auth, /api/admin');
 
 app.use((req, res) => {
   res.status(404).json({
@@ -45,6 +50,7 @@ app.use((req, res) => {
 });
 
 app.use(errorMiddleware);
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
